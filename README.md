@@ -5,6 +5,10 @@ press R to restart. This is deliberately small so you can add features during th
 
 **Play it here:** https://www.avivz.net/coin-dash/
 
+## Team
+
+Lab 3 pair: Moria Deri and Afek Aharoni.
+
 ## Run it locally
 
 Clone the repository and open `index.html` in a browser. Everything is in the repository;
