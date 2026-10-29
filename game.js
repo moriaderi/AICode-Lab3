@@ -55,14 +55,18 @@ class CoinDash extends Phaser.Scene {
     if (this.paused) {
       this.pausedAt = this.time.now;
       this.physics.pause();
+      this.tweens.pauseAll();
+      // Depth above the neon shapes (3-5) so the overlay is not drawn underneath them.
       this.pauseOverlay = this.add.container(c.width / 2, c.height / 2, [
-        this.add.rectangle(0, 0, 460, 80, 0x0a1120, 0.95),
+        this.add.rectangle(0, 0, 460, 80, c.colors.overlay, 0.95).setStrokeStyle(2, c.colors.overlayBorder, 1),
         this.add.text(0, 0, 'PAUSED — press P to resume',
-          { font: '24px monospace', color: '#ffffff' }).setOrigin(0.5)
-      ]);
+          { font: 'bold 24px monospace', color: this.toCss(c.colors.overlayText) })
+          .setOrigin(0.5).setShadow(0, 0, this.toCss(c.colors.overlayGlow), 10, true, true)
+      ]).setDepth(10);
     } else {
       this.deadline += this.time.now - this.pausedAt;
       this.physics.resume();
+      this.tweens.resumeAll();
       this.pauseOverlay.destroy();
     }
   }
