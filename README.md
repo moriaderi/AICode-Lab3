@@ -45,6 +45,6 @@ laptops' JSON files together and save the combined HTML. Use the same time windo
 - `vendor/phaser-3.90.0.min.js`: the pinned Phaser runtime, byte for byte the file published at
   `https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js`; `vendor/LICENSE.phaser.txt` is its MIT licence.
 
-The game draws its own shapes; there are no image or audio assets. The authored files are under the
-MIT licence in LICENSE.txt. Phaser documentation:
+The game draws its own shapes and synthesizes its sounds with the Web Audio API; there are no image or
+audio asset files. The authored files are under the MIT licence in LICENSE.txt. Phaser documentation:
 https://docs.phaser.io/phaser/getting-started/making-your-first-phaser-game
