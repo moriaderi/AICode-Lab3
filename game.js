@@ -9,7 +9,7 @@ class CoinDash extends Phaser.Scene {
     this.deadline = this.time.now + c.roundSeconds * 1000;
     this.physics.world.setBounds(0, 44, c.width, c.height - 44);
     this.add.grid(c.width / 2, c.height / 2, c.width, c.height, 40, 40,
-      c.colors.background, 1, 0x24334b, 0.45);
+      c.colors.background, 1, c.colors.grid, 0.55);
     this.hud = this.add.text(18, 12, '', { font: '18px monospace', color: '#ffffff' });
     this.player = this.add.rectangle(c.width / 2, c.height / 2, 24, 24, c.colors.player);
     this.physics.add.existing(this.player);
@@ -35,6 +35,7 @@ class CoinDash extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keys = this.input.keyboard.addKeys('W,A,S,D,R');
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
+    this.applyNeonStyle();
   }
 
   placeCoin() {
@@ -47,6 +48,57 @@ class CoinDash extends Phaser.Scene {
     } while (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) < 60);
     this.coin.setPosition(x, y);
     this.coin.body.reset(x, y);
+  }
+
+  toCss(color) { return '#' + color.toString(16).padStart(6, '0'); }
+
+  // Neon visuals only: physics bodies keep their original sizes, extra shapes just follow them.
+  applyNeonStyle() {
+    const c = COIN_DASH.colors;
+    const W = COIN_DASH.width;
+    this.followers = [];
+    const follow = (shape, target) => { this.followers.push({ shape, target }); return shape; };
+
+    // Glowing line under the HUD strip (top edge of the play area).
+    const g = this.add.graphics().setDepth(1);
+    g.fillStyle(c.horizon, 0.08).fillRect(0, 0, W, 44);
+    g.lineStyle(6, c.horizon, 0.2).lineBetween(0, 44, W, 44);
+    g.lineStyle(2, c.horizon, 0.9).lineBetween(0, 44, W, 44);
+
+    this.hud.setStyle({ font: 'bold 18px monospace', color: this.toCss(c.hud) })
+      .setShadow(0, 0, this.toCss(c.hudShadow), 8, true, true).setDepth(5);
+
+    // Player: dark core with a bright neon outline and a soft pulsing halo.
+    this.player.setFillStyle(c.player, 0.35).setStrokeStyle(2, c.player, 1).setDepth(4);
+    const halo = follow(this.add.rectangle(0, 0, 36, 36, c.playerGlow, 0.18)
+      .setStrokeStyle(1, c.playerGlow, 0.5).setDepth(3), this.player);
+    follow(this.add.rectangle(0, 0, 8, 8, c.playerGlow, 1).setDepth(4), this.player);
+    this.tweens.add({ targets: halo, alpha: 0.45, scale: 1.15, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+    // Coin: pulsing glow ring plus a "spinning" face (the physics circle itself is never scaled).
+    this.coin.setFillStyle(c.coin, 0).setDepth(4);
+    const ring = follow(this.add.circle(0, 0, 14, c.coinGlow, 0.15)
+      .setStrokeStyle(2, c.coinGlow, 0.7).setDepth(3), this.coin);
+    const face = follow(this.add.circle(0, 0, 9, c.coin, 1).setStrokeStyle(2, c.coinShine, 0.8).setDepth(4), this.coin);
+    this.tweens.add({ targets: ring, scale: 1.3, alpha: 0.4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.tweens.add({ targets: face, scaleX: 0.25, duration: 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+    // Drones: neon diamonds with a glow and a bright core, spinning slowly.
+    const diamond = (s) => [s / 2, 0, s, s / 2, s / 2, s, 0, s / 2];
+    this.drones.getChildren().forEach((drone, i) => {
+      drone.setFillStyle(c.drone, 0).setDepth(4);
+      const glow = follow(this.add.polygon(0, 0, diamond(40), c.droneGlow, 0.18).setDepth(3), drone);
+      const body = follow(this.add.polygon(0, 0, diamond(30), c.drone, 0.85)
+        .setStrokeStyle(2, c.droneCore, 0.9).setDepth(4), drone);
+      follow(this.add.circle(0, 0, 3, c.droneCore, 1).setDepth(5), drone);
+      this.tweens.add({ targets: [glow, body], angle: i % 2 ? -360 : 360, duration: 4000, repeat: -1 });
+      this.tweens.add({ targets: glow, alpha: 0.4, duration: 500 + i * 120, yoyo: true, repeat: -1 });
+    });
+
+    const sync = () => this.followers.forEach(({ shape, target }) => shape.setPosition(target.x, target.y));
+    sync();
+    this.events.on('postupdate', sync);
+    this.events.once('shutdown', () => this.events.off('postupdate', sync));
   }
 
   update() {
@@ -67,11 +119,13 @@ class CoinDash extends Phaser.Scene {
     this.finished = true;
     this.physics.pause();
     const c = COIN_DASH;
-    this.add.rectangle(c.width / 2, c.height / 2, 460, 150, 0x0a1120, 0.95);
+    this.add.rectangle(c.width / 2, c.height / 2, 476, 166, c.colors.overlayGlow, 0.18).setDepth(10);
+    this.add.rectangle(c.width / 2, c.height / 2, 460, 150, c.colors.overlay, 0.95)
+      .setStrokeStyle(2, c.colors.overlayBorder, 1).setDepth(10);
     this.add.text(c.width / 2, c.height / 2,
       `${reason}\n${this.score} coins collected\nPress R to try again`,
-      { font: '24px monospace', color: '#ffffff', align: 'center', lineSpacing: 12 }
-    ).setOrigin(0.5);
+      { font: 'bold 24px monospace', color: this.toCss(c.colors.overlayText), align: 'center', lineSpacing: 12 }
+    ).setOrigin(0.5).setShadow(0, 0, this.toCss(c.colors.overlayGlow), 10, true, true).setDepth(11);
   }
 }
 window.coinDashGame = new Phaser.Game({

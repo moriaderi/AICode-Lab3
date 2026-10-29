@@ -1,7 +1,27 @@
 * { box-sizing: border-box; }
-body { margin: 0; background: #0a1120; color: #e5edf7; font: 17px/1.5 system-ui, sans-serif; }
+body {
+  margin: 0; min-height: 100vh; color: #f3e9ff;
+  font: 17px/1.5 system-ui, sans-serif;
+  background:
+    linear-gradient(180deg, rgba(13, 2, 33, 0) 55%, rgba(255, 42, 109, .14) 100%),
+    radial-gradient(ellipse at 50% -10%, #3b0f6b 0%, #160535 45%, #0d0221 100%);
+  background-attachment: fixed;
+}
 main { max-width: 850px; margin: 30px auto; padding: 0 20px; }
-header > p:first-child { color: #71e8ce; font-size: 12px; letter-spacing: .15em; }
-h1 { margin: 0; font-size: 40px; }
-#game { border: 1px solid #34445e; border-radius: 12px; overflow: hidden; }
+header > p:first-child {
+  color: #05d9e8; font: 600 12px/1.5 monospace; letter-spacing: .3em;
+  text-shadow: 0 0 6px rgba(5, 217, 232, .8);
+}
+h1 {
+  margin: 0; font-size: 44px; letter-spacing: .06em; text-transform: uppercase;
+  color: #fff1f8;
+  text-shadow: 0 0 4px #fff1f8, 0 0 12px #ff2a6d, 0 0 28px #ff2a6d;
+}
+header > p:last-child { color: #c9b6e4; }
+#game {
+  border: 2px solid #05d9e8; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 10px rgba(5, 217, 232, .6), 0 0 32px rgba(255, 42, 109, .35), inset 0 0 12px rgba(5, 217, 232, .3);
+}
+main > p:last-child { color: #c9b6e4; }
+main strong { color: #f9f871; text-shadow: 0 0 6px rgba(249, 248, 113, .5); }
 canvas { display: block; }
