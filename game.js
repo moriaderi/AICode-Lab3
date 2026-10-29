@@ -30,6 +30,7 @@ class CoinDash extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.coin, () => {
       if (this.finished) return;
       this.score++;
+      this.playCoinSound();
       this.placeCoin();
     });
     this.physics.add.overlap(this.player, this.drones, () => this.finish('A drone caught you!'));
@@ -57,6 +58,30 @@ class CoinDash extends Phaser.Scene {
       this.physics.resume();
       this.pauseOverlay.destroy();
     }
+  }
+
+  playCoinSound() {
+    const volume = COIN_DASH.soundVolume;
+    if (!(volume > 0)) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = CoinDash.audio || (CoinDash.audio = new AudioCtx());
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      const t = ctx.currentTime;
+      [[988, 0], [1319, 0.05]].forEach(([freq, offset]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t + offset);
+        gain.gain.exponentialRampToValueAtTime(volume, t + offset + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + offset + 0.07);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.075);
+      });
+    } catch (e) { /* audio is optional */ }
   }
 
   placeCoin() {
