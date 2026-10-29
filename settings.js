@@ -7,7 +7,15 @@ window.COIN_DASH = {
   droneSpeed: 105,
   droneCount: 3,
   soundVolume: 0.15, // 0 disables the coin sound
-  colors: { background: 0x101c31, player: 0x71e8ce, coin: 0xffd166, drone: 0xff657a }
+  colors: {
+    // Neon arcade / synthwave palette.
+    background: 0x0d0221, grid: 0x6a2c91, horizon: 0xff2a6d,
+    player: 0x05d9e8, playerGlow: 0x00f0ff,
+    coin: 0xffd319, coinGlow: 0xff9e00, coinShine: 0xffffff,
+    drone: 0xff2a6d, droneGlow: 0xff006e, droneCore: 0xfff1f8,
+    hud: 0xf9f871, hudShadow: 0xff2a6d,
+    overlay: 0x12052b, overlayBorder: 0x05d9e8, overlayText: 0xfff1f8, overlayGlow: 0xff2a6d
+  }
 };
 
 // Difficulty presets (keys 1 / 2 / 3). Normal matches the top-level values above,
